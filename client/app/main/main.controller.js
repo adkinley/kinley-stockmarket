@@ -7,11 +7,12 @@ RHczh31e48Xd6yRtSHvS
 angular.module('kinleyStockmarketApp')
   .controller('MainCtrl', function ($scope, $http, socket) {
     $scope.awesomeThings = [];
-   
+
     /** Init these guys knowing they may be prefilled by init data from get **/
     $scope.series = [];
     $scope.labels = [];
     $scope.data = [];
+    $scope.symbols = [];
 
     $http.get('/api/things').success(function(awesomeThings) {
       $scope.awesomeThings = awesomeThings;
@@ -24,7 +25,6 @@ angular.module('kinleyStockmarketApp')
 $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
 .success(function (metadata) {
   // check for existence plus other metadata
-  $scope.series.push(metadata.dataset.name);
   var temp_labels = [];
   $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/data.json?start_date=2015-01-01&order=asc&collapse=weekly&column_index=4&api_key=RHczh31e48Xd6yRtSHvS').success(function(data) {
    // received data since start of 2015
@@ -36,6 +36,8 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
     });
     $scope.data.push(stock_prices);
     $scope.labels = temp_labels;
+    $scope.series.push(metadata.dataset.name);
+    $scope.symbols.push(item);
 
     });
   }).error(function (err) {
@@ -50,6 +52,11 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
       if($scope.newThing === '') {
         return;
       }
+      if (_.find($scope.symbols, function(elt) { return elt==$scope.newThing;}) != undefined) {
+        alert("Symbol " + $scope.newThing + " already exists");
+        $scope.newThing = '';
+        return;
+      }
 //      https://www.quandl.com/api/v3/datasets/WIKI/AAPL/data.json?start_date=2015-01-01&order=asc&column_index=4&api_key=RHczh31e48Xd6yRtSHvS
       $http.post('/api/things', { name: $scope.newThing });
       loadData($scope.newThing);
@@ -57,8 +64,17 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
 
     };
 
+
+    function removeGraph(item) {
+
+      var pos = _.findIndex($scope.symbols, function(elt) {return elt ==  item;});
+      _.pullAt($scope.series, pos);
+      _.pullAt($scope.data, pos);
+      _.pullAt($scope.symbols,pos);
+    }
     $scope.deleteThing = function(thing) {
       $http.delete('/api/things/' + thing._id);
+      removeGraph(thing.name);
     };
 
     $scope.$on('$destroy', function () {
