@@ -21,6 +21,8 @@ angular.module('kinleyStockmarketApp')
     });
 
 
+/** Gathers the data from quandl for stock symbol ITEM and inserts 
+  data appropriately ot be used for building the graph */
     function loadData(item) {
 $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
 .success(function (metadata) {
@@ -28,7 +30,7 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
   var temp_labels = [];
   $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/data.json?start_date=2015-01-01&order=asc&collapse=weekly&column_index=4&api_key=RHczh31e48Xd6yRtSHvS').success(function(data) {
    // received data since start of 2015
-    console.log("Received data");
+
     var stock_prices = [];
     data.dataset_data.data.forEach(function (element, index, array) {
       temp_labels.push(element[0]);
@@ -43,7 +45,7 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
   }).error(function (err) {
     alert("No such stock symbol " + item);
     $scope.newThing = '';
-    console.log("Error with request");
+
   });
 
 
@@ -65,6 +67,7 @@ $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?ap
     };
 
 
+    /** Removes an item up for deletion from  the graph **/
     function removeGraph(item) {
 
       var pos = _.findIndex($scope.symbols, function(elt) {return elt ==  item;});
