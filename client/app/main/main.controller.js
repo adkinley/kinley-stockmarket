@@ -24,47 +24,58 @@ angular.module('kinleyStockmarketApp')
 /** Gathers the data from quandl for stock symbol ITEM and inserts 
   data appropriately ot be used for building the graph */
     function loadData(item) {
-$http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
-.success(function (metadata) {
-  // check for existence plus other metadata
   var temp_labels = [];
-  $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/data.json?start_date=2015-01-01&order=asc&collapse=weekly&column_index=4&api_key=RHczh31e48Xd6yRtSHvS').success(function(data) {
+  $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
+  .success(function (metadata) {
+  $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+item+'/data.json?start_date=2015-01-01&order=asc&collapse=weekly&column_index=4&api_key=RHczh31e48Xd6yRtSHvS')
+  .success(function(data) {
    // received data since start of 2015
 
     var stock_prices = [];
     data.dataset_data.data.forEach(function (element, index, array) {
-      temp_labels.push(element[0]);
+      var str= element[0];
+      var dateArray = str.split('-');
+      var newDate = dateArray[1]+"/"+dateArray[2];
+      $scope.year = dateArray[0];
+
+      temp_labels.push(newDate);
       stock_prices.push(element[1]);
     });
     $scope.data.push(stock_prices);
     $scope.labels = temp_labels;
-    $scope.series.push(metadata.dataset.name);
+    var str = metadata.dataset.name;
+    str = str.substr(0,str.indexOf('(',0)); // extract out just the company name
+
+    $scope.series.push(str);
     $scope.symbols.push(item);
 
-    });
+  });
+});
+ };
+
+
+    $scope.addThing = function() {
+      if($scope.newThing === '') {
+        return;
+      }
+      if (_.find($scope.awesomeThings, function(elt) { return elt.name==$scope.newThing;}) != undefined) {
+        alert("Symbol " + $scope.newThing + " already exists");
+        $scope.newThing = '';
+        return;
+      }
+  //      https://www.quandl.com/api/v3/datasets/WIKI/AAPL/data.json?start_date=2015-01-01&order=asc&column_index=4&api_key=RHczh31e48Xd6yRtSHvS
+  $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+$scope.newThing+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
+  .success(function (metadata) {
+  // check for existence plus other metadata
+  $http.post('/api/things', { name: $scope.newThing});
+  loadData($scope.newThing);
+  $scope.newThing = '';
   }).error(function (err) {
     alert("No such stock symbol " + item);
     $scope.newThing = '';
 
   });
-
-
-    }
-    $scope.addThing = function() {
-      if($scope.newThing === '') {
-        return;
-      }
-      if (_.find($scope.symbols, function(elt) { return elt==$scope.newThing;}) != undefined) {
-        alert("Symbol " + $scope.newThing + " already exists");
-        $scope.newThing = '';
-        return;
-      }
-//      https://www.quandl.com/api/v3/datasets/WIKI/AAPL/data.json?start_date=2015-01-01&order=asc&column_index=4&api_key=RHczh31e48Xd6yRtSHvS
-      $http.post('/api/things', { name: $scope.newThing });
-      loadData($scope.newThing);
-      $scope.newThing = '';
-
-    };
+  };
 
 
     /** Removes an item up for deletion from  the graph **/
