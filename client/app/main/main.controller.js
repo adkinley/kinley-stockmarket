@@ -17,7 +17,15 @@ angular.module('kinleyStockmarketApp')
     
     $http.get('/api/things').success(function(awesomeThings) {
       $scope.awesomeThings = awesomeThings;
-      socket.syncUpdates('thing', $scope.awesomeThings);
+      socket.syncUpdates('thing', $scope.awesomeThings, function (event, item, object) {
+        console.log(event);
+      if (event == 'created') {
+        loadData(item.name);
+      } else {
+        removeGraph(item.name);
+      }
+
+      });
       _.forEach($scope.awesomeThings, function(item) { loadData(item.name);});
     });
 
