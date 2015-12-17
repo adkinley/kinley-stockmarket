@@ -1,10 +1,12 @@
+<div class="container">
 
-<body>
-  <div class="container">
   <h3>Stocks {{year}}:</h3>
   <hr>
-  <canvas id="line" class="chart chart-line" chart-data="data"
-  chart-labels="labels" chart-legend="true" height ="auto" width="200px" chart-options='{pointDot:false,datasetFill:false,tooltipXOffset:2,tooltipCaretSize:2,scaleShowGridLines:false}' chart-series="series"
+
+  <div class="container">
+  <canvas id="line"  
+  class="chart chart-line" chart-colours="colors" chart-data="data"
+  chart-labels="labels" chart-legend="true" chart-options='{pointDot:false,datasetFill:false,responsive:true,maintainAspectRatio:true,tooltipXOffset:2,tooltipCaretSize:2,scaleShowLabels:false,scaleShowGridLines:false,scaleFontSize:0, scaleFontFamily: Arial}' chart-series="series"
   chart-click="onClick" >
 </canvas> 
 </div>
@@ -26,7 +28,7 @@
     </p>
   </form>
 </div>
-</body>
+</div>
 <footer class="footer">
   <div class="container">
       <p>Angular Fullstack v2.1.1 |

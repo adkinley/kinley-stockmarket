@@ -13,7 +13,8 @@ angular.module('kinleyStockmarketApp')
     $scope.labels = [];
     $scope.data = [];
     $scope.symbols = [];
-
+    $scope.colors = ['red','blue','green','black','orange','violet'];
+    
     $http.get('/api/things').success(function(awesomeThings) {
       $scope.awesomeThings = awesomeThings;
       socket.syncUpdates('thing', $scope.awesomeThings);
@@ -48,7 +49,7 @@ angular.module('kinleyStockmarketApp')
 
     $scope.series.push(str);
     $scope.symbols.push(item);
-
+//    window.dispatchEvent(new Event('resize'));
   });
 });
  };
