@@ -14,17 +14,17 @@ angular.module('kinleyStockmarketApp')
     $scope.data = [];
     $scope.symbols = [];
     $scope.colors = ['red','blue','green','black','orange','violet'];
-    
+    $scope.iamthecreator = false;    
     $http.get('/api/things').success(function(awesomeThings) {
       $scope.awesomeThings = awesomeThings;
       socket.syncUpdates('thing', $scope.awesomeThings, function (event, item, object) {
-        console.log(event);
-      if (event == 'created') {
+      if (event == 'created' && !$scope.iamthecreator) {
         loadData(item.name);
       } else {
         removeGraph(item.name);
       }
 
+      $scope.iamthecreator = false;
       });
       _.forEach($scope.awesomeThings, function(item) { loadData(item.name);});
     });
@@ -76,11 +76,12 @@ angular.module('kinleyStockmarketApp')
   $http.get('https://www.quandl.com/api/v3/datasets/WIKI/'+$scope.newThing+'/metadata.json?api_key=RHczh31e48Xd6yRtSHvS')
   .success(function (metadata) {
   // check for existence plus other metadata
+  $scope.iamthecreator = true;
   $http.post('/api/things', { name: $scope.newThing});
   loadData($scope.newThing);
   $scope.newThing = '';
   }).error(function (err) {
-    alert("No such stock symbol " + item);
+    alert("No such stock symbol " + $scope.newThing);
     $scope.newThing = '';
 
   });
